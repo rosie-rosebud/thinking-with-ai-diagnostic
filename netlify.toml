@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+# Serve index.html for any unmatched route (so the React app handles routing)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
