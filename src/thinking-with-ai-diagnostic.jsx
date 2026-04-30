@@ -515,7 +515,9 @@ GLOBAL RULE — CLEAN SEPARATION OF READING FROM EVERYTHING ELSE:
 The report has a dedicated "Recommended reading" section. That is the ONLY place where specific books, papers, blog posts, authors, researchers, or named frameworks may appear. Everywhere else — diagnostic summary, strengths, areas for growth, next steps, one thing to try — must contain NO specific sources:
 - No author names (no "Willingham," no "Risko and Gilbert," no "Furze," etc.)
 - No titles (no "Make It Stick," no "the WEIRD paper")
+- No named frameworks or theories borrowed from specific authors (no "Furze's resistance framework," no "the extended mind theory")
 
+Generic references to research are FINE — you can say "the research is clear that..." or "there's good evidence that..." or "studies on retrieval practice show..." What you cannot do is name the source. If a point would naturally lead to naming a book or researcher, either leave the sourcing implicit or use a generic "the research" phrase, and let the reading list do the specific sourcing.
 
 VOICE — READ THIS CAREFULLY AND FOLLOW IT EXACTLY:
 
@@ -579,8 +581,8 @@ DIMENSIONS:
 REPORT STRUCTURE:
 
 1. DIAGNOSTIC SUMMARY (2 paragraphs, returned as the "who_you_are" field) — An honest AI-generated overview of their diagnostic results. Structure it as two paragraphs separated by a blank line:
-   - PARAGRAPH 1: Summarise what you see in their responses. Lean into specifics from their answers — use some of the phrasing from the quiz questions where it works. This paragraph should feel grounded and specific, not generic. It's what they might say about themselves after a particularly reflective staffroom conversation. Use phrases like "your answers show..." or "it looks like..." to highlight that this section is based on their own survey responses.
-   - PARAGRAPH 2 (this one will render as a quote callout): Name any tension, contradiction, or honest version of their practice that the first paragraph set up. This is where you get to be direct. Start with something like "The honest version of this, though, is..." or "Here's the bit worth pondering..." — then name the gap. Be honest about where they are without being unkind.
+   - PARAGRAPH 1: Summarise what you see in their responses. Lean into specifics from their answers — use some of the phrasing from the quiz questions where it works. This paragraph should feel grounded and specific, not generic. It's what they might say about themselves after a particularly reflective staffroom conversation.
+   - PARAGRAPH 2 (this one will render as a quote callout): Name any tension, contradiction, or honest version of their practice that the first paragraph set up. This is where you get to be direct. Start with something like "The honest version of this, though, is..." or "Here's the bit worth sitting with..." — then name the gap. Be honest about where they are without being unkind.
 
    Together the two paragraphs should make them feel seen, not flattered.
 
@@ -593,7 +595,7 @@ Scale: 1-7. 1.0-2.0 = Early. 2.1-3.5 = Emerging. 3.6-4.5 = Developing. 4.6-5.5 =
 
 5. NEXT STEPS (3-5) — Concrete classroom actions they can actually do. This week or this term. Ordered from "try this tomorrow" to "work on this over the next few months." Be specific enough that they could do it without further instruction. These are ACTIONS — activities, habits, prompts, structural changes they can introduce with their students — never reading assignments.
 
-6. RECOMMENDED READING (3-5) — You will be given a shortlist of resources in the user message, each with a title, author, year, format, level, dimensions, and a one-line note describing what it offers. Pick 3-5 from that shortlist. Aim for a mix of formats (books, papers, blog posts) and levels (accessible, intermediate, academic) appropriate to the reader. For the "context" field of each reading, copy the information verbatim; do not adapt them to the reader.
+6. RECOMMENDED READING (3-5) — You will be given a shortlist of resources in the user message, each with a title, author, year, format, level, dimensions, and a one-line note describing what it offers. Pick 3-5 from that shortlist. Aim for a mix of formats (books, papers, blog posts) and levels (accessible, intermediate, academic) appropriate to the reader. For the "context" field of each reading, write a short sentence that connects the resource specifically to the reader's situation — why THIS person should read THIS resource right now. You can draw on the provided notes but do not just copy them verbatim; adapt them to the reader.
 
 7. ONE THING TO TRY THIS WEEK — One thing. Doable in 10 minutes. No prep needed. Write it like you're texting a colleague a suggestion.
 
@@ -838,13 +840,13 @@ const ReportView = ({ data, type }) => {
       {/* Ko-fi */}
       <div style={{textAlign:"center",marginTop:32,padding:"24px 28px",background:RPT_COLOURS.paleGreen,border:`2px dashed ${RPT_COLOURS.forest}`,borderRadius:14}}>
         <div style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:20,color:RPT_COLOURS.forest,marginBottom:8}}>Found this useful?</div>
-        <p style={{fontSize:13.5,color:"rgba(26,14,10,0.7)",marginBottom:16,lineHeight:1.6}}>This whole thing — the diagnostic, the report, the reading list — is free. But if you found value in it, consider dropping a few pennies at this link to keep it running.</p>
-        <a href="https://buy.stripe.com/cNibJ289ncci8A7gvt5EY00" target="_blank" rel="noopener noreferrer" style={{
+        <p style={{fontSize:13.5,color:"rgba(26,14,10,0.7)",marginBottom:16,lineHeight:1.6}}>This whole thing — the diagnostic, the report, the reading list — is free. If it landed, you can drop a few quid to keep it going.</p>
+        <a href="https://ko-fi.com/" target="_blank" rel="noopener noreferrer" style={{
           display:"inline-block",background:RPT_COLOURS.forest,color:RPT_COLOURS.cream,
           padding:"10px 20px",borderRadius:999,fontSize:13,fontWeight:600,
           fontFamily:"'Inter',system-ui,sans-serif",textDecoration:"none",letterSpacing:"0.02em"
         }}>
-          Pay What You Want
+          Support on Ko-fi
         </a>
       </div>
 
@@ -942,8 +944,8 @@ ${readingBlock}`;
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "claude-sonnet-4-20250514",
-            max_tokens: 3000,
+            model: "claude-haiku-4-5-20251001",
+            max_tokens: 4096,
             system: REPORT_PROMPT,
             messages: [{ role: "user", content: userMsg }]
           })
@@ -987,7 +989,17 @@ ${readingBlock}`;
         }
 
         const clean = text.replace(/```json|```/g, "").trim();
-        setReportData(JSON.parse(clean));
+        try {
+          setReportData(JSON.parse(clean));
+        } catch (parseErr) {
+          // The most common parse failure is the response being cut off
+          // mid-string — usually because we hit max_tokens. Give the user
+          // a friendlier explanation and ask them to retry.
+          if (/unterminated|unexpected end/i.test(parseErr.message)) {
+            throw new Error("The report got cut off while being generated. This usually clears up on a retry — please refresh and try again. If it keeps happening, let us know.");
+          }
+          throw parseErr;
+        }
       } catch (e) {
         setReportError(e.message);
       } finally {
