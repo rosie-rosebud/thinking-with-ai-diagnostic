@@ -319,7 +319,8 @@ const WelcomeScreen = ({ onStart }) => (
 // Likert scale circles (largest at ends, smallest at middle, no numbers),
 // "Strongly disagree" on left / "Strongly agree" on right — this matches the
 // scoring engine (val=1 = strongly disagree, val=7 = strongly agree).
-const QuizPage = ({ page, pageIdx, totalPages, answers, onAnswer, onNext, onPrev }) => {
+const QuizPage = ({ page, pageIdx, totalPages, answers, onAnswer, onNext, onPrev, onJumpToPage, allQuestions }) => {
+  const [showReview, setShowReview] = useState(false);
   const allAnswered = page.every((_, i) => answers[pageIdx * 6 + i] != null);
   // Circle sizes mirror the Likert shape: largest at extremes, smallest at neutral.
   // Index 0 = val=1 (strongly disagree), index 6 = val=7 (strongly agree).
@@ -403,7 +404,7 @@ const QuizPage = ({ page, pageIdx, totalPages, answers, onAnswer, onNext, onPrev
                   );
                 })}
               </div>
-              <div style={{display:"flex",justifyContent:"space-between",marginTop:16,fontFamily:"'Instrument Serif',Georgia,serif",fontStyle:"italic",fontSize:14,color:D2.inkMuted,padding:"0 16px"}}>
+              <div style={{display:"flex",justifyContent:"space-between",marginTop:6,fontFamily:"'Instrument Serif',Georgia,serif",fontStyle:"italic",fontSize:14,color:D2.inkMuted,padding:"0 16px"}}>
                 <span>Strongly disagree</span>
                 <span>Strongly agree</span>
               </div>
@@ -411,8 +412,23 @@ const QuizPage = ({ page, pageIdx, totalPages, answers, onAnswer, onNext, onPrev
           );
         })}
 
-        {/* Footer: continue button */}
-        <div style={{marginTop:40,display:"flex",justifyContent:"flex-end",alignItems:"center"}}>
+        {/* Footer: review (last page only) + continue/results button */}
+        <div style={{marginTop:40,display:"flex",justifyContent:pageIdx === totalPages - 1 ? "space-between" : "flex-end",alignItems:"center",flexWrap:"wrap",gap:16}}>
+          {pageIdx === totalPages - 1 && (
+            <button onClick={() => setShowReview(v => !v)} style={{
+              background:"transparent",
+              color:D2.ink,
+              padding:"14px 28px",fontSize:14,fontWeight:600,letterSpacing:"0.03em",
+              border:`2px solid ${D2.ink}`,borderRadius:999,
+              cursor:"pointer",
+              fontFamily:"inherit",
+              transition:"background 0.15s, color 0.15s",
+            }}
+            onMouseEnter={e=>{e.currentTarget.style.background=D2.ink;e.currentTarget.style.color=D2.paperInk}}
+            onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.color=D2.ink}}>
+              {showReview ? "Hide review ↑" : "Review my answers ↓"}
+            </button>
+          )}
           <button onClick={onNext} disabled={!allAnswered} style={{
             background: allAnswered ? D2.ink : "rgba(26,14,10,0.15)",
             color: allAnswered ? D2.paperInk : "rgba(26,14,10,0.35)",
@@ -427,6 +443,69 @@ const QuizPage = ({ page, pageIdx, totalPages, answers, onAnswer, onNext, onPrev
             {pageIdx === totalPages - 1 ? "See my results →" : "Continue →"}
           </button>
         </div>
+
+        {/* Review panel — inline, last page only */}
+        {pageIdx === totalPages - 1 && showReview && (
+          <div style={{marginTop:32,padding:"32px 28px",background:"rgba(255,255,255,0.5)",borderRadius:14}}>
+            <div style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:28,fontStyle:"italic",color:D2.ink,marginBottom:8}}>Review your answers</div>
+            <div style={{fontSize:14,color:D2.inkSoft,marginBottom:24,lineHeight:1.55}}>Click any question to go back and change your response.</div>
+            <div style={{display:"flex",flexDirection:"column"}}>
+              {allQuestions.map((q, qIdx) => {
+                const val = answers[qIdx];
+                const targetPage = Math.floor(qIdx / 6);
+                const reviewSizes = [13, 11, 9, 8, 9, 11, 13];
+                return (
+                  <button
+                    key={qIdx}
+                    onClick={() => { setShowReview(false); onJumpToPage(targetPage); }}
+                    style={{
+                      display:"grid",gridTemplateColumns:"1fr auto",gap:20,alignItems:"center",
+                      padding:"14px 12px",margin:"0 -12px",
+                      borderBottom: qIdx === allQuestions.length - 1 ? "none" : "1px solid rgba(26,14,10,0.08)",
+                      borderTop:"none",borderLeft:"none",borderRight:"none",
+                      cursor:"pointer",borderRadius:8,transition:"background 0.15s",
+                      background:"transparent",font:"inherit",color:"inherit",textAlign:"left",width:"calc(100% + 24px)",
+                    }}
+                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,0.6)"}}
+                    onMouseLeave={e=>{e.currentTarget.style.background="transparent"}}
+                  >
+                    <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                      <span style={{fontFamily:"'Instrument Serif',Georgia,serif",fontStyle:"italic",fontSize:13,color:D2.red}}>Q{String(qIdx+1).padStart(2,"0")}</span>
+                      <span style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:16,lineHeight:1.4,color:D2.ink}}>{renderText(q.s)}</span>
+                    </div>
+                    <div style={{display:"flex",gap:6,alignItems:"center",justifyContent:"center",pointerEvents:"none"}}>
+                      {[1,2,3,4,5,6,7].map(v => {
+                        const sz = reviewSizes[v-1];
+                        const sel = v === val;
+                        return (
+                          <span key={v} style={{
+                            display:"inline-block",
+                            width:sz,height:sz,borderRadius:"50%",
+                            background: sel ? D2.red : D2.cream,
+                            border: sel ? `1.5px solid ${D2.red}` : "1.5px solid rgba(26,14,10,0.3)",
+                          }}/>
+                        );
+                      })}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <div style={{marginTop:24,paddingTop:20,borderTop:"1px solid rgba(26,14,10,0.15)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:16}}>
+              <button onClick={() => setShowReview(false)} style={{background:"none",border:"none",fontSize:13,color:D2.inkMuted,cursor:"pointer",fontFamily:"inherit",fontWeight:500,textDecoration:"underline"}}>↑ Hide review</button>
+              <button onClick={onNext} disabled={!allAnswered} style={{
+                background: allAnswered ? D2.ink : "rgba(26,14,10,0.15)",
+                color: allAnswered ? D2.paperInk : "rgba(26,14,10,0.35)",
+                padding:"16px 34px",fontSize:15,fontWeight:600,letterSpacing:"0.03em",
+                border:"none",borderRadius:999,
+                cursor: allAnswered ? "pointer" : "default",
+                fontFamily:"inherit",
+              }}>
+                See my results →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -2129,6 +2208,8 @@ export default function App() {
           onAnswer={handleAnswer}
           onNext={handleNext}
           onPrev={handlePrev}
+          onJumpToPage={setPageIdx}
+          allQuestions={QUESTIONS}
         />
       )}
       {screen === "result" && result && (
