@@ -334,11 +334,18 @@ const QuizPage = ({ page, pageIdx, totalPages, answers, onAnswer, onNext, onPrev
 
       {/* Nav */}
       <div style={{maxWidth:1100,margin:"0 auto",padding:"28px 48px 0",display:"flex",justifyContent:"space-between",alignItems:"center",position:"relative",zIndex:2}}>
-        <div style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:22,fontStyle:"italic",display:"flex",alignItems:"center",gap:10,color:D2.ink}}>
+        <button
+          onClick={() => {
+            if (window.confirm("Leaving now means you'll lose your progress. Are you sure?")) {
+              window.location.href = "https://thinkingwithai.co";
+            }
+          }}
+          style={{fontFamily:"'Instrument Serif',Georgia,serif",fontSize:22,fontStyle:"italic",display:"flex",alignItems:"center",gap:10,color:D2.ink,background:"none",border:"none",padding:0,cursor:"pointer"}}
+        >
           <span style={{width:12,height:12,background:D2.red,borderRadius:"50%"}}/>
           <span>Thinking with AI</span>
-        </div>
-        <div style={{fontSize:12,color:D2.inkMuted,fontFamily:"'Instrument Serif',serif",fontStyle:"italic"}}>Saved automatically</div>
+        </button>
+
       </div>
 
       {/* Main */}
