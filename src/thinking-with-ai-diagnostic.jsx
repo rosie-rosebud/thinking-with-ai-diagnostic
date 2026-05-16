@@ -249,7 +249,7 @@ const WelcomeScreen = ({ onStart }) => (
         <span style={{width:12,height:12,background:D2.red,borderRadius:"50%"}}/>
         <span>Thinking with AI</span>
       </div>
-      <div style={{fontSize:12,color:D2.inkMuted,fontFamily:"'Instrument Serif',serif",fontStyle:"italic"}}>by Amelia King</div>
+      
     </div>
 
     {/* Main content */}
@@ -260,10 +260,10 @@ const WelcomeScreen = ({ onStart }) => (
             <span style={{display:"inline-block",background:D2.ink,color:D2.paperInk,fontSize:12,fontWeight:600,letterSpacing:"0.08em",textTransform:"uppercase",padding:"6px 12px",borderRadius:3,transform:"rotate(-1.5deg)"}}>A diagnostic for teachers</span>
           </div>
           <h1 style={{fontFamily:"'Instrument Serif',Georgia,serif",fontWeight:400,fontSize:"clamp(42px,7vw,76px)",lineHeight:0.96,letterSpacing:"-0.015em",color:D2.ink,margin:0}}>
-            What sort of AI-using teacher are you, <span style={{background:D2.yellow,padding:"0 6px",display:"inline-block",transform:"rotate(-0.4deg)"}}>really?</span>
+            What is your <span style={{background:D2.yellow,padding:"0 6px",display:"inline-block",transform:"rotate(-0.4deg)"}}>Thinking with AI</span> type?
           </h1>
           <p style={{fontSize:"clamp(15px,1.5vw,18px)",lineHeight:1.5,marginTop:28,color:D2.inkSoft,maxWidth:"92%"}}>
-            Ten types. Five dimensions. One <em style={{fontFamily:"'Instrument Serif',Georgia,serif",fontStyle:"italic",fontSize:19,color:D2.ink}}>honest-ish</em> portrait of how you're already thinking with AI in your classroom — and where the next bit of growth might be hiding.
+            36 questions. Ten types. Five dimensions. One portrait of how you're already thinking with AI in your classroom, and what your next steps could be.
           </p>
           <div style={{marginTop:40,display:"flex",alignItems:"center",gap:24,flexWrap:"wrap"}}>
             <button onClick={onStart} style={{background:D2.ink,color:D2.paperInk,padding:"16px 34px",fontSize:15,fontWeight:600,letterSpacing:"0.03em",border:"none",borderRadius:999,cursor:"pointer",fontFamily:"inherit"}}
@@ -272,7 +272,7 @@ const WelcomeScreen = ({ onStart }) => (
               Start the diagnostic →
             </button>
             <div style={{fontSize:14,color:D2.inkMuted,lineHeight:1.5,maxWidth:280}}>
-              Free · no sign-up · <strong style={{color:D2.ink,fontWeight:600}}>pay what you want</strong> for the full report
+              Free · no sign-up · your own personalised report at the end
             </div>
           </div>
         </div>
@@ -298,7 +298,7 @@ const WelcomeScreen = ({ onStart }) => (
 
       <div style={{marginTop:60,paddingTop:24,borderTop:`1px solid ${D2.inkMuted}`,fontSize:13,color:D2.inkMuted,fontFamily:"'Instrument Serif',serif",fontStyle:"italic",display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
         <span>thinkingwithai.co</span>
-        <span>From the forthcoming book <em>Thinking with AI</em></span>
+        <span>Based on the book <em>Thinking with AI</em> by Amelia King</span>
       </div>
     </div>
 
